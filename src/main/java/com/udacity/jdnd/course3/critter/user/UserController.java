@@ -1,6 +1,7 @@
 package com.udacity.jdnd.course3.critter.user;
 
 import com.udacity.jdnd.course3.critter.pet.Pet;
+import com.udacity.jdnd.course3.critter.pet.PetNotFoundException;
 import com.udacity.jdnd.course3.critter.pet.PetService;
 import com.udacity.jdnd.course3.critter.user.customer.Customer;
 import com.udacity.jdnd.course3.critter.user.customer.CustomerDTO;
@@ -43,7 +44,13 @@ public class UserController {
         List<Pet> pets = new ArrayList<>();
         BeanUtils.copyProperties(customerDTO, customer);
         if(customerDTO.getPetIds() != null &&  customerDTO.getPetIds().size() > 0) {
-            customerDTO.getPetIds().forEach(id -> pets.add(petService.findById(id)));
+            customerDTO.getPetIds().forEach(id -> {
+                try {
+                    pets.add(petService.findById(id));
+                } catch (PetNotFoundException e) {
+                    e.printStackTrace();
+                }
+            });
             customer.setPets(pets);
         }
         return customerService.save(customer);
@@ -55,7 +62,7 @@ public class UserController {
     }
 
     @GetMapping("/customer/pet/{petId}")
-    public CustomerDTO getOwnerByPet(@PathVariable long petId){
+    public CustomerDTO getOwnerByPet(@PathVariable long petId) throws UserNotFoundException {
         return customerService.getOwnerByPet(petId);
     }
 
@@ -67,12 +74,12 @@ public class UserController {
     }
 
     @PostMapping("/employee/{employeeId}")
-    public EmployeeDTO getEmployee(@PathVariable long employeeId) {
+    public EmployeeDTO getEmployee(@PathVariable long employeeId) throws UserNotFoundException {
         return employeeService.getEmployee(employeeId);
     }
 
     @PutMapping("/employee/{employeeId}")
-    public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
+    public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) throws UserNotFoundException {
         employeeService.setAvailability(daysAvailable, employeeId);
     }
 

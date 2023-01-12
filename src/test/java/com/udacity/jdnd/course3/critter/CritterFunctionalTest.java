@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.udacity.jdnd.course3.critter.pet.PetController;
 import com.udacity.jdnd.course3.critter.pet.PetDTO;
+import com.udacity.jdnd.course3.critter.pet.PetNotFoundException;
 import com.udacity.jdnd.course3.critter.pet.PetType;
 import com.udacity.jdnd.course3.critter.schedule.ScheduleController;
 import com.udacity.jdnd.course3.critter.schedule.ScheduleDTO;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -57,7 +59,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
-    public void testCreateEmployee(){
+    public void testCreateEmployee() throws UserNotFoundException {
         EmployeeDTO employeeDTO = createEmployeeDTO();
         EmployeeDTO newEmployee = userController.saveEmployee(employeeDTO);
         EmployeeDTO retrievedEmployee = userController.getEmployee(newEmployee.getId());
@@ -67,7 +69,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
-    public void testAddPetsToCustomer() {
+    public void testAddPetsToCustomer() throws PetNotFoundException, UserNotFoundException {
         CustomerDTO customerDTO = createCustomerDTO();
         CustomerDTO newCustomer = userController.saveCustomer(customerDTO);
 
@@ -92,7 +94,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
-    public void testFindPetsByOwner() {
+    public void testFindPetsByOwner() throws UserNotFoundException {
         CustomerDTO customerDTO = createCustomerDTO();
         CustomerDTO newCustomer = userController.saveCustomer(customerDTO);
 
@@ -110,7 +112,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
-    public void testFindOwnerByPet() {
+    public void testFindOwnerByPet() throws UserNotFoundException {
         CustomerDTO customerDTO = createCustomerDTO();
         CustomerDTO newCustomer = userController.saveCustomer(customerDTO);
 
@@ -124,7 +126,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
-    public void testChangeEmployeeAvailability() {
+    public void testChangeEmployeeAvailability() throws UserNotFoundException {
         EmployeeDTO employeeDTO = createEmployeeDTO();
         EmployeeDTO emp1 = userController.saveEmployee(employeeDTO);
         Assertions.assertNull(emp1.getDaysAvailable());
@@ -174,7 +176,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
-    public void testSchedulePetsForServiceWithEmployee() {
+    public void testSchedulePetsForServiceWithEmployee() throws UserNotFoundException {
         EmployeeDTO employeeTemp = createEmployeeDTO();
         employeeTemp.setDaysAvailable(Sets.newHashSet(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY));
         EmployeeDTO employeeDTO = userController.saveEmployee(employeeTemp);
@@ -198,7 +200,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
-    public void testFindScheduleByEntities() {
+    public void testFindScheduleByEntities() throws UserNotFoundException {
         ScheduleDTO sched1 = populateSchedule(1, 2, LocalDate.of(2019, 12, 25), Sets.newHashSet(EmployeeSkill.FEEDING, EmployeeSkill.WALKING));
         ScheduleDTO sched2 = populateSchedule(3, 1, LocalDate.of(2019, 12, 26), Sets.newHashSet(EmployeeSkill.PETTING));
 
@@ -295,8 +297,15 @@ public class CritterFunctionalTest {
                 .mapToObj(i -> createPetDTO())
                 .map(p -> {
                     p.setOwnerId(cust.getId());
-                    return petController.savePet(p).getId();
-                }).collect(Collectors.toList());
+                    try {
+                        return petController.savePet(p).getId();
+                    } catch (UserNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         return scheduleController.createSchedule(createScheduleDTO(petIds, employeeIds, date, activities));
     }
 

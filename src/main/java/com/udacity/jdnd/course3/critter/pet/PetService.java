@@ -19,12 +19,12 @@ public class PetService {
         return new PetDTO(petRepository.save(pet));
     }
 
-    public PetDTO getPet(Long petId) {
-        return new PetDTO(petRepository.findById(petId).orElseThrow(RuntimeException::new));
+    public PetDTO getPet(Long petId) throws PetNotFoundException {
+        return new PetDTO(petRepository.findById(petId).orElseThrow(PetNotFoundException::new));
     }
 
-    public Pet findById(Long petId) {
-        return petRepository.findById(petId).orElseThrow(RuntimeException::new);
+    public Pet findById(Long petId) throws PetNotFoundException {
+        return petRepository.findById(petId).orElseThrow(PetNotFoundException::new);
     }
 
     public List<PetDTO> getPets() {

@@ -1,5 +1,6 @@
 package com.udacity.jdnd.course3.critter.pet;
 
+import com.udacity.jdnd.course3.critter.user.UserNotFoundException;
 import com.udacity.jdnd.course3.critter.user.customer.CustomerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class PetController {
     private CustomerService customerService;
 
     @PostMapping
-    public PetDTO savePet(@RequestBody PetDTO petDTO) {
+    public PetDTO savePet(@RequestBody PetDTO petDTO) throws UserNotFoundException {
         Pet pet = new Pet();
         BeanUtils.copyProperties(petDTO, pet);
         pet.setOwner(customerService.findById(petDTO.getOwnerId()));
@@ -29,7 +30,7 @@ public class PetController {
     }
 
     @GetMapping("/{petId}")
-    public PetDTO getPet(@PathVariable long petId) {
+    public PetDTO getPet(@PathVariable long petId) throws PetNotFoundException {
         return petService.getPet(petId);
     }
 

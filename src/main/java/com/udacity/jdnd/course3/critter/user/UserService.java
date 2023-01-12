@@ -12,7 +12,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User getUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(RuntimeException::new);
+    public User getUser(Long userId) throws UserNotFoundException {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 }

@@ -1,5 +1,6 @@
 package com.udacity.jdnd.course3.critter.user.employee;
 
+import com.udacity.jdnd.course3.critter.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +19,12 @@ public class EmployeeService {
         return new EmployeeDTO(employeeRepository.save(employee));
     }
 
-    public EmployeeDTO getEmployee(Long employeeId) {
-        return new EmployeeDTO(employeeRepository.findById(employeeId).orElseThrow(RuntimeException::new));
+    public EmployeeDTO getEmployee(Long employeeId) throws UserNotFoundException {
+        return new EmployeeDTO(employeeRepository.findById(employeeId).orElseThrow(UserNotFoundException::new));
     }
 
-    public void setAvailability(Set<DayOfWeek> daysAvailable, Long employeeId) {
-        Employee employee = employeeRepository.findById(employeeId).orElseThrow(RuntimeException::new);
+    public void setAvailability(Set<DayOfWeek> daysAvailable, Long employeeId) throws UserNotFoundException {
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(UserNotFoundException::new);
         employee.setDaysAvailable(daysAvailable);
         employeeRepository.save(employee);
     }
