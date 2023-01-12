@@ -61,6 +61,6 @@ public class Schedule {
     )
     private List<Pet> pets;
     private LocalDate date;
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection
     private Set<EmployeeSkill> activities;
 }
